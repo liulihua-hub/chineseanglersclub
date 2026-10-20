@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#143d35">
+  <meta name="description" content="A welcoming Canadian fishing community for Chinese immigrants, families, and anglers of every experience level.">
+  <title>Chinese Anglers Club Canada | 加拿大华人钓鱼俱乐部</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --forest: #143d35;
+      --forest-deep: #102f2b;
+      --moss: #526f56;
+      --mist: #eef2e9;
+      --paper: #fbfaf6;
+      --ink: #20332f;
+      --muted: #65736d;
+      --coral: #df744e;
+      --line: #dce2d8;
+      --sans: "DM Sans", sans-serif;
+      --chinese: "Noto Sans SC", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans), var(--chinese), sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .zh { font-family: var(--chinese), sans-serif; }
+    .site-header {
+      position: absolute;
+      z-index: 2;
+      inset: 0 0 auto;
+      color: white;
+    }
+    .nav {
+      width: min(1160px, calc(100% - 48px));
+      min-height: 82px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgb(255 255 255 / 24%);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+      text-decoration: none;
+    }
+    .brand-mark {
+      display: grid;
+      width: 39px;
+      height: 39px;
+      place-items: center;
+      border: 1px solid rgb(255 255 255 / 66%);
+      border-radius: 50%;
+      font-size: 19px;
+    }
+    .brand-name { display: grid; gap: 2px; }
+    .brand-name strong { font-size: 13px; letter-spacing: .4px; }
+    .brand-name span { color: rgb(255 255 255 / 75%); font-size: 11px; }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a {
+      color: rgb(255 255 255 / 86%);
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .nav-links a:hover { color: white; }
+    .nav-links .nav-join {
+      padding: 10px 16px;
+      border: 1px solid rgb(255 255 255 / 65%);
+      border-radius: 3px;
+      color: white;
+    }
+    .hero {
+      position: relative;
+      display: flex;
+      min-height: 650px;
+      align-items: center;
+      overflow: hidden;
+      background: var(--forest-deep);
+      color: white;
+    }
+    .hero::before {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgb(13 38 34 / 88%) 0%, rgb(13 38 34 / 70%) 44%, rgb(13 38 34 / 20%) 100%),
+        linear-gradient(0deg, rgb(13 38 34 / 20%), transparent 45%),
+        url("https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=2200&q=85") center 54% / cover;
+      content: "";
+    }
+    .hero-inner {
+      position: relative;
+      width: min(1160px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 140px 0 90px;
+      animation: arrive .75s ease-out both;
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #d4e0ce;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { width: 25px; height: 1px; background: var(--coral); content: ""; }
+    h1 {
+      max-width: 690px;
+      margin: 23px 0 13px;
+      font-size: clamp(44px, 6vw, 72px);
+      font-weight: 500;
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+    .hero-cn { margin: 0; color: #e0e6d7; font-size: 21px; }
+    .hero-copy { max-width: 510px; margin: 24px 0 30px; color: rgb(255 255 255 / 82%); font-size: 16px; line-height: 1.75; }
+    .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .button {
+      display: inline-flex;
+      min-height: 46px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      font: 600 13px var(--sans), var(--chinese), sans-serif;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .button:hover { transform: translateY(-1px); }
+    .button-primary { background: var(--coral); color: #fff; }
+    .button-primary:hover { background: #c85f3c; }
+    .button-quiet { border-color: rgb(255 255 255 / 55%); color: #fff; }
+    .button-quiet:hover { background: rgb(255 255 255 / 10%); }
+    .hero-note { margin-top: 24px; color: rgb(255 255 255 / 68%); font-size: 12px; }
+
+    .intro {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      width: min(1040px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 94px 0 92px;
+    }
+    .section-label { color: var(--moss); font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
+    .intro h2, .section-heading h2 {
+      margin: 12px 0 16px;
+      color: var(--forest);
+      font-size: clamp(28px, 3vw, 38px);
+      font-weight: 500;
+      line-height: 1.2;
+    }
+    .intro .zh-heading { margin: -6px 0 0; color: var(--moss); font-size: 17px; }
+    .intro-copy { align-self: center; color: #53625b; font-size: 15px; line-height: 1.85; }
+    .intro-copy p { margin: 0 0 14px; }
+    .values {
+      background: var(--mist);
+      border-top: 1px solid #e2e8de;
+      border-bottom: 1px solid #e2e8de;
+    }
+    .values-inner { width: min(1040px, calc(100% - 48px)); margin: 0 auto; padding: 72px 0 76px; }
+    .section-heading { max-width: 630px; margin-bottom: 35px; }
+    .section-heading p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .value-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .value-item { padding-top: 19px; border-top: 1px solid #aebcaf; }
+    .value-number { color: var(--coral); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+    .value-item h3 { margin: 13px 0 8px; color: var(--forest); font-size: 17px; font-weight: 600; }
+    .value-item p { margin: 0; color: #59665f; font-size: 13px; line-height: 1.7; }
+    .value-item .zh { margin-top: 5px; color: #758178; font-size: 12px; }
+
+    .field-notes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      width: min(1040px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 76px 0;
+    }
+    .field-notes h2 { margin: 10px 0 14px; color: var(--forest); font-size: 26px; font-weight: 500; }
+    .field-notes p { color: var(--muted); font-size: 14px; line-height: 1.75; }
+    .resource-link { display: inline-flex; gap: 9px; align-items: center; margin-top: 8px; color: var(--forest); font-size: 13px; font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+    .resource-link:hover { color: var(--coral); }
+    .join-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 30px 32px;
+      background: var(--forest);
+      color: white;
+    }
+    .join-panel .section-label { color: #d2e1cc; }
+    .join-panel h2 { margin: 12px 0 9px; color: white; font-size: 24px; }
+    .join-panel p { margin: 0 0 20px; color: rgb(255 255 255 / 76%); font-size: 13px; line-height: 1.7; }
+    .join-panel .button { border-color: rgb(255 255 255 / 50%); color: white; }
+    .join-panel .button:hover { background: rgb(255 255 255 / 10%); }
+    .site-footer { background: #102f2b; color: rgb(255 255 255 / 73%); }
+    .footer-inner {
+      display: flex;
+      width: min(1160px, calc(100% - 48px));
+      min-height: 76px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 auto;
+      font-size: 11px;
+    }
+    .footer-inner p { margin: 0; }
+    .share-status { min-height: 1em; margin: 0; color: #d4e0ce; font-size: 11px; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+    @media (max-width: 720px) {
+      .nav { width: min(100% - 36px, 1160px); min-height: 70px; }
+      .nav-links { gap: 15px; }
+      .nav-links a { font-size: 12px; }
+      .nav-links a:first-child { display: none; }
+      .nav-links .nav-join { padding: 8px 11px; }
+      .hero { min-height: 620px; }
+      .hero::before { background-position: 58% center; background-image: linear-gradient(90deg, rgb(13 38 34 / 82%), rgb(13 38 34 / 46%)), url("https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=1200&q=80"); }
+      .hero-inner, .nav, .footer-inner { width: calc(100% - 40px); }
+      .hero-inner { padding: 125px 0 75px; }
+      h1 { max-width: 540px; font-size: clamp(43px, 11vw, 62px); }
+      .hero-copy { max-width: 430px; font-size: 15px; }
+      .intro, .field-notes { grid-template-columns: 1fr; gap: 25px; width: calc(100% - 40px); }
+      .intro { padding: 64px 0; }
+      .values-inner { width: calc(100% - 40px); padding: 58px 0; }
+      .value-grid { grid-template-columns: 1fr; gap: 24px; }
+      .field-notes { padding: 58px 0; }
+      .join-panel { padding: 27px 24px; }
+    }
+    @media (max-width: 420px) {
+      .brand { gap: 8px; }
+      .brand-mark { width: 34px; height: 34px; }
+      .brand-name strong { font-size: 11px; }
+      .brand-name span { font-size: 10px; }
+      .nav-links { gap: 9px; }
+      .hero-actions { align-items: stretch; flex-direction: column; max-width: 230px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; justify-content: center; padding: 17px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#home" aria-label="Chinese Anglers Club Canada home">
+        <span class="brand-mark" aria-hidden="true">釣</span>
+        <span class="brand-name">
+          <strong>CHINESE ANGLERS CLUB</strong>
+          <span>加拿大华人钓鱼俱乐部</span>
+        </span>
+      </a>
+      <div class="nav-links">
+        <a href="#about">Our community</a>
+        <a href="#fishing">Fishing in Canada</a>
+        <a class="nav-join" href="#join">Join us <span class="zh" lang="zh">加入我们</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <div class="eyebrow">A fishing community in Canada</div>
+        <h1 id="hero-title">Good days begin<br>by the water.</h1>
+        <p class="hero-cn zh" lang="zh">因热爱垂钓，在加拿大相聚。</p>
+        <p class="hero-copy">A friendly place for Chinese immigrants, families, and fishing lovers to share the quiet joy of a day on the water, wherever home is in Canada.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#join">Find your fishing people <span aria-hidden="true">→</span></a>
+          <button class="button button-quiet" id="share-button" type="button">Share the club <span aria-hidden="true">↗</span></button>
+        </div>
+        <p class="hero-note zh" lang="zh">欢迎新手、老手与家人朋友。</p>
+      </div>
+    </section>
+
+    <section class="intro" id="about" aria-labelledby="about-title">
+      <div>
+        <span class="section-label">More than a catch</span>
+        <h2 id="about-title">A little more at home, wherever we cast.</h2>
+        <p class="zh-heading zh" lang="zh">以钓会友，在异乡找到熟悉的温暖。</p>
+      </div>
+      <div class="intro-copy">
+        <p>Moving to a new country means discovering a lot of things from scratch. Fishing is one way to slow down, explore the lakes and rivers around us, and meet people who share a familiar love of the outdoors.</p>
+        <p>We’re a community for Chinese anglers across Canada: beginners learning their first knots, experienced hands sharing what they know, and families making room for one more fishing story.</p>
+      </div>
+    </section>
+
+    <section class="values" aria-labelledby="values-title">
+      <div class="values-inner">
+        <div class="section-heading">
+          <span class="section-label">Our kind of day</span>
+          <h2 id="values-title">There’s room on the shore for everyone.</h2>
+          <p>Good company, shared knowledge, and care for the places that bring us together.</p>
+        </div>
+        <div class="value-grid">
+          <article class="value-item">
+            <span class="value-number">01 / LEARN</span>
+            <h3>Start wherever you are</h3>
+            <p>New to fishing in Canada? Ask questions, learn local basics, and build confidence one cast at a time.</p>
+            <p class="zh" lang="zh">从第一竿开始，互相交流，一起学习。</p>
+          </article>
+          <article class="value-item">
+            <span class="value-number">02 / BELONG</span>
+            <h3>Bring your whole self</h3>
+            <p>Share stories, traditions, and a few peaceful hours outside with people who understand where you’re coming from.</p>
+            <p class="zh" lang="zh">分享故事，也分享属于我们的户外时光。</p>
+          </article>
+          <article class="value-item">
+            <span class="value-number">03 / CARE</span>
+            <h3>Leave the water better</h3>
+            <p>Respect local rules, practice responsible fishing, and leave the shoreline as beautiful as we found it.</p>
+            <p class="zh" lang="zh">遵守规定，爱护水域，带走垃圾。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="field-notes" id="fishing" aria-labelledby="fishing-title">
+      <div>
+        <span class="section-label">A good place to start</span>
+        <h2 id="fishing-title">Every province has its own waters and rules.</h2>
+        <p>Before you head out, check the fishing licence requirements, open seasons, catch limits, and local advisories for the province or territory where you plan to fish.</p>
+        <a class="resource-link" href="https://www.dfo-mpo.gc.ca/fisheries-peches/rec/index-eng.html" target="_blank" rel="noopener noreferrer">Explore recreational fishing in Canada <span aria-hidden="true">↗</span></a>
+      </div>
+      <aside class="join-panel" id="join" aria-labelledby="join-title">
+        <span class="section-label">The next cast is better together</span>
+        <h2 id="join-title">Come find your people.</h2>
+        <p>Know someone in the club? Reach out to them and ask about joining a local outing. New friends are always welcome.</p>
+        <button class="button" id="join-share-button" type="button">Share this page <span aria-hidden="true">↗</span></button>
+        <p class="share-status" id="share-status" role="status" aria-live="polite"></p>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>Chinese Anglers Club Canada <span aria-hidden="true">·</span> 加拿大华人钓鱼俱乐部</p>
+      <p>Made for good company and open water.</p>
+    </div>
+  </footer>
+
+  <script>
+    const shareButtons = document.querySelectorAll("#share-button, #join-share-button");
+    const shareStatus = document.querySelector("#share-status");
+
+    for (const button of shareButtons) {
+      button.addEventListener("click", async () => {
+        const shareData = {
+          title: "Chinese Anglers Club Canada",
+          text: "A fishing community for Chinese immigrants and anglers in Canada.",
+          url: window.location.href
+        };
+
+        try {
+          if (navigator.share) {
+            await navigator.share(shareData);
+          } else if (navigator.clipboard) {
+            await navigator.clipboard.writeText(window.location.href);
+            shareStatus.textContent = "Page link copied.";
+          } else {
+            shareStatus.textContent = "Copy this page's address to share it with a friend.";
+          }
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            shareStatus.textContent = "Copy this page's address to share it with a friend.";
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
