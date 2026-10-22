@@ -239,6 +239,17 @@
     .forum-form .button { margin-top: 18px; border-color: rgb(255 255 255 / 50%); color: white; }
     .forum-form .button:hover { background: rgb(255 255 255 / 10%); }
     .forum-status { min-height: 1em; margin: 12px 0 0; color: #d2e1cc; font-size: 12px; }
+    .auth-panel { margin-bottom: 18px; padding: 20px 22px; background: #e6ece1; }
+    .auth-panel h3 { margin: 0 0 12px; color: var(--forest); font-size: 18px; font-weight: 600; }
+    .auth-panel p { margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .auth-fields { display: grid; gap: 9px; }
+    .auth-fields input { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 2px; background: white; color: var(--ink); font: 13px var(--sans), var(--chinese), sans-serif; }
+    .auth-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .auth-actions button { padding: 9px 12px; border: 1px solid var(--forest); border-radius: 2px; background: var(--forest); color: white; font: 600 12px var(--sans), var(--chinese), sans-serif; cursor: pointer; }
+    .auth-actions button.secondary { background: transparent; color: var(--forest); }
+    .auth-actions button:hover { opacity: .88; }
+    .auth-status { min-height: 1em; margin: 10px 0 0; color: var(--muted); font-size: 12px; }
+    .auth-user { color: var(--forest) !important; font-weight: 600; }
     .join-panel {
       display: flex;
       flex-direction: column;
@@ -388,11 +399,28 @@
             <div class="forum-posts" id="forum-posts" aria-live="polite"></div>
             <p class="forum-empty" id="forum-empty" data-i18n="forumEmpty">还没有帖子，成为第一个发帖的钓友吧。</p>
           </div>
-          <form class="forum-form" id="forum-form">
+          <div>
+            <div class="auth-panel" id="auth-panel">
+              <h3 data-i18n="authTitle">登录后参与交流</h3>
+              <p id="auth-description" data-i18n="authDescription">注册或登录后，您就可以发布帖子和回复。</p>
+              <form id="auth-form">
+                <div class="auth-fields" id="auth-fields">
+                  <input id="auth-name" type="text" placeholder="注册姓名（登录时无需填写）" data-i18n-placeholder="namePlaceholder" autocomplete="name">
+                  <input id="auth-email" type="email" placeholder="邮箱地址" data-i18n-placeholder="emailPlaceholder" autocomplete="email" required>
+                  <input id="auth-password" type="password" placeholder="密码（至少6位）" data-i18n-placeholder="passwordPlaceholder" minlength="6" autocomplete="current-password" required>
+                </div>
+                <div class="auth-actions" id="auth-actions">
+                  <button type="submit" id="login-button" data-i18n="login">登录</button>
+                  <button type="button" class="secondary" id="register-button" data-i18n="register">注册</button>
+                </div>
+              </form>
+              <div class="auth-actions" id="logout-actions" hidden>
+                <button type="button" class="secondary" id="logout-button" data-i18n="logout">退出登录</button>
+              </div>
+              <p class="auth-status" id="auth-status" role="status" aria-live="polite"></p>
+            </div>
+            <form class="forum-form" id="forum-form" hidden>
             <h3 data-i18n="newPost">发布新帖子</h3>
-            <label><span data-i18n="nickname">昵称</span>
-              <input id="post-author" name="author" type="text" maxlength="30" placeholder="请输入昵称" data-i18n-placeholder="nicknamePlaceholder" required>
-            </label>
             <label><span data-i18n="postTitleLabel">标题</span>
               <input id="post-title" name="title" type="text" maxlength="80" placeholder="帖子标题" data-i18n-placeholder="postTitlePlaceholder" required>
             </label>
@@ -443,6 +471,19 @@
     const forumEmpty = document.querySelector("#forum-empty");
     const forumStatus = document.querySelector("#forum-status");
     const languageToggle = document.querySelector("#language-toggle");
+    const authForm = document.querySelector("#auth-form");
+    const authName = document.querySelector("#auth-name");
+    const authEmail = document.querySelector("#auth-email");
+    const authPassword = document.querySelector("#auth-password");
+    const authFields = document.querySelector("#auth-fields");
+    const authActions = document.querySelector("#auth-actions");
+    const logoutActions = document.querySelector("#logout-actions");
+    const logoutButton = document.querySelector("#logout-button");
+    const registerButton = document.querySelector("#register-button");
+    const authStatus = document.querySelector("#auth-status");
+    const authDescription = document.querySelector("#auth-description");
+    let currentSession = null;
+    const getUserDisplayName = () => currentSession?.user?.user_metadata?.full_name || currentSession?.user?.email?.split("@")[0] || "User";
     let currentLanguage = localStorage.getItem("chinese-anglers-language") || "zh";
     const translations = {
       navAbout: { zh: "我们的社区", en: "Our community" }, navForum: { zh: "钓友论坛", en: "Anglers forum" }, navFishing: { zh: "加拿大钓鱼指南", en: "Fishing in Canada" }, navJoin: { zh: "加入我们", en: "Join us" },
@@ -450,7 +491,7 @@
       aboutLabel: { zh: "不只是钓鱼", en: "More than a catch" }, aboutTitle: { zh: "无论在哪里挥竿，都能找到家的感觉。", en: "Feel a little more at home, wherever we cast." }, aboutCopy1: { zh: "来到一个新的国家，意味着从头开始了解许多事情。钓鱼可以让我们放慢脚步，探索身边的湖泊与河流，也能认识同样热爱户外生活的朋友。", en: "Moving to a new country means discovering a lot of things from scratch. Fishing helps us slow down, explore the lakes and rivers around us, and meet people who share a love of the outdoors." }, aboutCopy2: { zh: "我们是遍布加拿大的华人钓鱼社区：欢迎学习第一个鱼结的新手、分享经验的老钓友，也欢迎为下一段钓鱼故事留出空间的家庭。", en: "We are a community for Chinese anglers across Canada: beginners learning their first knots, experienced anglers sharing what they know, and families making room for one more fishing story." },
       valuesLabel: { zh: "我们喜欢的时光", en: "Our kind of day" }, valuesTitle: { zh: "每个人都能在岸边找到自己的位置。", en: "There is room on the shore for everyone." }, valuesCopy: { zh: "结交朋友、分享知识，也一起守护让我们相聚的水域。", en: "Good company, shared knowledge, and care for the places that bring us together." }, learnTitle: { zh: "从你所在的地方开始", en: "Start wherever you are" }, learnCopy: { zh: "刚开始在加拿大钓鱼吗？欢迎提问，学习当地的基本知识，一竿一竿建立信心。", en: "New to fishing in Canada? Ask questions, learn local basics, and build confidence one cast at a time." }, belongTitle: { zh: "做真实的自己", en: "Bring your whole self" }, belongCopy: { zh: "与理解你来处的朋友分享故事、传统，以及几小时宁静的户外时光。", en: "Share stories, traditions, and peaceful hours outside with people who understand where you are coming from." }, careTitle: { zh: "让水域更加美好", en: "Leave the water better" }, careCopy: { zh: "遵守当地规定，负责任地垂钓，让岸边保持我们来时一样的美丽。", en: "Respect local rules, practice responsible fishing, and leave the shoreline as beautiful as we found it." },
       forumLabel: { zh: "钓友交流", en: "Anglers forum" }, forumTitle: { zh: "分享你的钓鱼故事。", en: "Share your fishing stories." }, forumCopy: { zh: "交流钓点、装备、经验和活动信息，认识更多喜欢钓鱼的朋友。", en: "Exchange fishing spots, gear, experience, and event information with fellow anglers." }, forumEmpty: { zh: "还没有帖子，成为第一个发帖的钓友吧。", en: "There are no posts yet. Be the first to start a conversation." }, newPost: { zh: "发布新帖子", en: "Create a new post" }, nickname: { zh: "昵称", en: "Name" }, nicknamePlaceholder: { zh: "请输入昵称", en: "Enter your name" }, postTitleLabel: { zh: "标题", en: "Title" }, postTitlePlaceholder: { zh: "帖子标题", en: "Post title" }, content: { zh: "内容", en: "Message" }, contentPlaceholder: { zh: "分享你的想法、问题或钓鱼经历", en: "Share your thoughts, questions, or fishing experience" }, publish: { zh: "发布帖子 <span aria-hidden='true'>→</span>", en: "Publish post <span aria-hidden='true'>→</span>" },
-      replyNamePlaceholder: { zh: "昵称", en: "Name" }, replyContentPlaceholder: { zh: "写下你的回复……", en: "Write a reply…" }, replyButton: { zh: "回复", en: "Reply" },
+      replyContentPlaceholder: { zh: "写下你的回复……", en: "Write a reply…" }, replyButton: { zh: "回复", en: "Reply" }, authTitle: { zh: "登录后参与交流", en: "Sign in to join the conversation" }, authDescription: { zh: "注册或登录后，您就可以发布帖子和回复。", en: "Register or sign in to publish posts and replies." }, namePlaceholder: { zh: "注册姓名（登录时无需填写）", en: "Name for registration (not needed to sign in)" }, emailPlaceholder: { zh: "邮箱地址", en: "Email address" }, passwordPlaceholder: { zh: "密码（至少6位）", en: "Password (at least 6 characters)" }, login: { zh: "登录", en: "Sign in" }, register: { zh: "注册", en: "Register" }, logout: { zh: "退出登录", en: "Sign out" },
       fishingLabel: { zh: "从这里开始", en: "A good place to start" }, fishingTitle: { zh: "每个省和地区都有自己的水域与规定。", en: "Every province and territory has its own waters and rules." }, fishingCopy: { zh: "出发前，请查看计划垂钓的省或地区对钓鱼执照、开放季节、渔获限额和当地公告的要求。", en: "Before you head out, check fishing licence requirements, open seasons, catch limits, and local advisories for the province or territory where you plan to fish." }, fishingLink: { zh: "了解加拿大休闲钓鱼信息 <span aria-hidden='true'>↗</span>", en: "Explore recreational fishing in Canada <span aria-hidden='true'>↗</span>" }, joinLabel: { zh: "一起挥出下一竿", en: "The next cast is better together" }, joinTitle: { zh: "来认识志同道合的朋友。", en: "Come find your people." }, joinCopy: { zh: "认识俱乐部里的朋友吗？联系他们，了解如何参加当地活动。我们随时欢迎新朋友。", en: "Know someone in the club? Ask about joining a local outing. New friends are always welcome." }, sharePage: { zh: "分享此页面 <span aria-hidden='true'>↗</span>", en: "Share this page <span aria-hidden='true'>↗</span>" }, footerName: { zh: "加拿大华人钓鱼俱乐部 <span aria-hidden='true'>·</span> Chinese Anglers Club Canada", en: "Chinese Anglers Club Canada <span aria-hidden='true'>·</span> 加拿大华人钓鱼俱乐部" }, footerCopy: { zh: "因钓鱼相聚，共享美好时光。", en: "Made for good company and open water." }
     };
 
@@ -472,9 +513,72 @@
 
     languageToggle.addEventListener("click", () => {
       applyLanguage(currentLanguage === "zh" ? "en" : "zh");
+      updateAuthUI();
       renderForumPosts();
     });
     applyLanguage(currentLanguage);
+
+    const updateAuthUI = () => {
+      const isSignedIn = Boolean(currentSession);
+      authFields.hidden = isSignedIn;
+      authActions.hidden = isSignedIn;
+      logoutActions.hidden = !isSignedIn;
+      forumForm.hidden = !isSignedIn;
+      authDescription.textContent = isSignedIn
+        ? `${currentLanguage === "zh" ? "已登录：" : "Signed in as "}${getUserDisplayName()}`
+        : translations.authDescription[currentLanguage];
+      authDescription.classList.toggle("auth-user", isSignedIn);
+    };
+
+    const setAuthStatus = (message) => {
+      authStatus.textContent = message;
+    };
+
+    authForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const { error } = await supabaseClient.auth.signInWithPassword({ email: authEmail.value.trim(), password: authPassword.value });
+      setAuthStatus(error ? (currentLanguage === "zh" ? "登录失败，请检查邮箱和密码。" : "Sign-in failed. Check your email and password.") : (currentLanguage === "zh" ? "登录成功。" : "Signed in successfully."));
+    });
+
+    registerButton.addEventListener("click", async () => {
+      if (!authForm.reportValidity()) return;
+      if (!authName.value.trim()) {
+        setAuthStatus(currentLanguage === "zh" ? "注册时请输入姓名。" : "Enter your name to register.");
+        authName.focus();
+        return;
+      }
+      const { data, error } = await supabaseClient.auth.signUp({
+        email: authEmail.value.trim(),
+        password: authPassword.value,
+        options: { data: { full_name: authName.value.trim() } }
+      });
+      if (error) {
+        setAuthStatus(currentLanguage === "zh" ? "注册失败，请检查邮箱或密码。" : "Registration failed. Check your email and password.");
+      } else if (!data.session) {
+        setAuthStatus(currentLanguage === "zh" ? "注册成功，请检查邮箱完成验证。" : "Registration succeeded. Check your email to confirm your account.");
+      } else {
+        setAuthStatus(currentLanguage === "zh" ? "注册并登录成功。" : "Registered and signed in successfully.");
+      }
+    });
+
+    logoutButton.addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      setAuthStatus(currentLanguage === "zh" ? "您已退出登录。" : "You have signed out.");
+    });
+
+    if (isForumConfigured) {
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        currentSession = session;
+        updateAuthUI();
+        renderForumPosts();
+      });
+      supabaseClient.auth.getSession().then(({ data }) => {
+        currentSession = data.session;
+        updateAuthUI();
+      });
+    } else {
+      updateAuthUI();
+    }
 
     const escapeHtml = (value) => value.replace(/[&<>"']/g, (character) => ({
       "&": "&amp;",
@@ -531,11 +635,10 @@
               <div class="reply-meta">${escapeHtml(reply.author)} · ${escapeHtml(new Intl.DateTimeFormat(currentLanguage === "zh" ? "zh-CN" : "en-CA", { dateStyle: "medium" }).format(new Date(reply.created_at)))}</div>
             </div>
           `).join("")}</div>
-          <form class="reply-form" data-post-id="${post.id}">
-            <input name="author" type="text" maxlength="30" placeholder="${translations.replyNamePlaceholder[currentLanguage]}" aria-label="${translations.replyNamePlaceholder[currentLanguage]}" required>
+          ${currentSession ? `<form class="reply-form" data-post-id="${post.id}">
             <input name="content" type="text" maxlength="1000" placeholder="${translations.replyContentPlaceholder[currentLanguage]}" aria-label="${translations.replyContentPlaceholder[currentLanguage]}" required>
             <button type="submit">${translations.replyButton[currentLanguage]}</button>
-          </form>
+          </form>` : `<div class="forum-meta">${currentLanguage === "zh" ? "登录后回复此帖子。" : "Sign in to reply to this post."}</div>`}
         </article>
       `;
       }).join("");
@@ -574,7 +677,7 @@
       }
       const formData = new FormData(forumForm);
       const { error } = await supabaseClient.from("forum_posts").insert({
-        author: formData.get("author").trim(),
+        author: getUserDisplayName(),
         title: formData.get("title").trim(),
         content: formData.get("content").trim()
       });

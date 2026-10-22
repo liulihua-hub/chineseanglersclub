@@ -55,3 +55,22 @@ with check (true);
 
 create index forum_replies_post_id_created_at_idx
 on public.forum_replies (post_id, created_at);
+
+-- Run this migration after the original forum policies have been created.
+drop policy if exists "Anyone can create forum posts" on public.forum_posts;
+drop policy if exists "Anyone can create forum replies" on public.forum_replies;
+
+revoke insert on public.forum_posts from anon;
+revoke insert on public.forum_replies from anon;
+
+create policy "Authenticated users can create forum posts"
+on public.forum_posts
+for insert
+to authenticated
+with check (true);
+
+create policy "Authenticated users can create forum replies"
+on public.forum_replies
+for insert
+to authenticated
+with check (true);
