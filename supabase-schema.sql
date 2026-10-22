@@ -74,3 +74,22 @@ on public.forum_replies
 for insert
 to authenticated
 with check (true);
+
+alter table public.forum_posts add column if not exists image_path text;
+alter table public.forum_replies add column if not exists image_path text;
+
+insert into storage.buckets (id, name, public)
+values ('forum-images', 'forum-images', true)
+on conflict (id) do update set public = true;
+
+create policy "Anyone can view forum images"
+on storage.objects
+for select
+to anon, authenticated
+using (bucket_id = 'forum-images');
+
+create policy "Authenticated users can upload forum images"
+on storage.objects
+for insert
+to authenticated
+with check (bucket_id = 'forum-images' and (storage.foldername(name))[1] = (select auth.uid()::text));
