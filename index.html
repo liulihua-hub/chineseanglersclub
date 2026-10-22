@@ -404,7 +404,7 @@
           </div>
           <div>
             <div class="auth-panel" id="auth-panel">
-              <h3 data-i18n="authTitle">登录后参与交流</h3>
+              <h3 id="auth-title" data-i18n="authTitle">登录后参与交流</h3>
               <p id="auth-description" data-i18n="authDescription">注册或登录后，您就可以发布帖子和回复。</p>
               <form id="auth-form">
                 <div class="auth-fields" id="auth-fields">
@@ -489,6 +489,7 @@
     const registerButton = document.querySelector("#register-button");
     const authStatus = document.querySelector("#auth-status");
     const authDescription = document.querySelector("#auth-description");
+    const authTitle = document.querySelector("#auth-title");
     let currentSession = null;
     const getUserDisplayName = () => currentSession?.user?.user_metadata?.full_name || currentSession?.user?.email?.split("@")[0] || "User";
     let currentLanguage = localStorage.getItem("chinese-anglers-language") || "zh";
@@ -527,14 +528,13 @@
 
     const updateAuthUI = () => {
       const isSignedIn = Boolean(currentSession);
-      authFields.hidden = isSignedIn;
-      authActions.hidden = isSignedIn;
+      authTitle.hidden = isSignedIn;
+      authDescription.hidden = isSignedIn;
+      authForm.hidden = isSignedIn;
+      authStatus.hidden = isSignedIn;
       logoutActions.hidden = !isSignedIn;
       forumForm.hidden = !isSignedIn;
-      authDescription.textContent = isSignedIn
-        ? `${currentLanguage === "zh" ? "已登录：" : "Signed in as "}${getUserDisplayName()}`
-        : translations.authDescription[currentLanguage];
-      authDescription.classList.toggle("auth-user", isSignedIn);
+      if (!isSignedIn) authDescription.textContent = translations.authDescription[currentLanguage];
     };
 
     const setAuthStatus = (message) => {
