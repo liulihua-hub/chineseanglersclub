@@ -196,6 +196,41 @@
     .field-notes p { color: var(--muted); font-size: 14px; line-height: 1.75; }
     .resource-link { display: inline-flex; gap: 9px; align-items: center; margin-top: 8px; color: var(--forest); font-size: 13px; font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 4px; }
     .resource-link:hover { color: var(--coral); }
+    .forum {
+      background: #f5f7f1;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .forum-inner { width: min(1040px, calc(100% - 48px)); margin: 0 auto; padding: 76px 0; }
+    .forum-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+    .forum-posts { display: grid; gap: 14px; }
+    .forum-post {
+      padding: 20px 22px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+    }
+    .forum-post h3 { margin: 0 0 8px; color: var(--forest); font-size: 17px; font-weight: 600; }
+    .forum-post p { margin: 0 0 12px; color: #59665f; font-size: 14px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .forum-meta { color: var(--muted); font-size: 11px; }
+    .forum-empty { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .forum-form { padding: 26px; background: var(--forest); color: white; }
+    .forum-form h3 { margin: 0 0 18px; font-size: 21px; font-weight: 500; }
+    .forum-form label { display: grid; gap: 6px; margin-top: 14px; color: #d2e1cc; font-size: 12px; }
+    .forum-form input, .forum-form textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid rgb(255 255 255 / 30%);
+      border-radius: 2px;
+      background: rgb(255 255 255 / 10%);
+      color: white;
+      font: 14px var(--sans), var(--chinese), sans-serif;
+    }
+    .forum-form input::placeholder, .forum-form textarea::placeholder { color: rgb(255 255 255 / 58%); }
+    .forum-form textarea { min-height: 120px; resize: vertical; }
+    .forum-form .button { margin-top: 18px; border-color: rgb(255 255 255 / 50%); color: white; }
+    .forum-form .button:hover { background: rgb(255 255 255 / 10%); }
+    .forum-status { min-height: 1em; margin: 12px 0 0; color: #d2e1cc; font-size: 12px; }
     .join-panel {
       display: flex;
       flex-direction: column;
@@ -243,6 +278,8 @@
       .intro { padding: 64px 0; }
       .values-inner { width: calc(100% - 40px); padding: 58px 0; }
       .value-grid { grid-template-columns: 1fr; gap: 24px; }
+      .forum-inner { width: calc(100% - 40px); padding: 58px 0; }
+      .forum-layout { grid-template-columns: 1fr; gap: 28px; }
       .field-notes { padding: 58px 0; }
       .join-panel { padding: 27px 24px; }
     }
