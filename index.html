@@ -20,6 +20,8 @@
       --ink: #20332f;
       --muted: #65736d;
       --coral: #df744e;
+      --coral-button: #a9472a;
+      --coral-button-hover: #873a24;
       --line: #dce2d8;
       --sans: "DM Sans", sans-serif;
       --chinese: "Noto Sans SC", sans-serif;
@@ -138,14 +140,16 @@
       padding: 0 18px;
       border: 1px solid transparent;
       border-radius: 3px;
+      background: transparent;
       font: 600 13px var(--sans), var(--chinese), sans-serif;
       text-decoration: none;
       cursor: pointer;
       transition: background .18s ease, border-color .18s ease, transform .18s ease;
     }
     .button:hover { transform: translateY(-1px); }
-    .button-primary { background: var(--coral); color: #fff; }
-    .button-primary:hover { background: #c85f3c; }
+    .button-primary { background: var(--coral-button); color: #fff; }
+    .button-primary:hover { background: var(--coral-button-hover); }
+    .button:focus-visible, .auth-actions button:focus-visible { outline: 3px solid #f2bd72; outline-offset: 3px; }
     .button-quiet { border-color: rgb(255 255 255 / 55%); color: #fff; }
     .button-quiet:hover { background: rgb(255 255 255 / 10%); }
     .hero-note { margin-top: 24px; color: rgb(255 255 255 / 68%); font-size: 12px; }
@@ -251,7 +255,8 @@
     .auth-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .auth-actions button { padding: 9px 12px; border: 1px solid var(--forest); border-radius: 2px; background: var(--forest); color: white; font: 600 12px var(--sans), var(--chinese), sans-serif; cursor: pointer; }
     .auth-actions button.secondary { background: transparent; color: var(--forest); }
-    .auth-actions button:hover { opacity: .88; }
+    .auth-actions button:hover { background: var(--forest-deep); }
+    .auth-actions button.secondary:hover { background: #d5dfd2; }
     .auth-status { min-height: 1em; margin: 10px 0 0; color: var(--muted); font-size: 12px; }
     .auth-user { color: var(--forest) !important; font-weight: 600; }
     .join-panel {
