@@ -247,6 +247,7 @@
     .auth-panel p { margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.6; }
     .auth-fields { display: grid; gap: 9px; }
     .auth-fields input { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 2px; background: white; color: var(--ink); font: 13px var(--sans), var(--chinese), sans-serif; }
+    #registration-captcha { margin-top: 12px; }
     .auth-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .auth-actions button { padding: 9px 12px; border: 1px solid var(--forest); border-radius: 2px; background: var(--forest); color: white; font: 600 12px var(--sans), var(--chinese), sans-serif; cursor: pointer; }
     .auth-actions button.secondary { background: transparent; color: var(--forest); }
@@ -416,6 +417,7 @@
                   <button type="submit" id="login-button" data-i18n="login">登录</button>
                   <button type="button" class="secondary" id="register-button" data-i18n="register">注册</button>
                 </div>
+                <div id="registration-captcha" hidden></div>
               </form>
               <div class="auth-actions" id="logout-actions" hidden>
                 <button type="button" class="secondary" id="logout-button" data-i18n="logout">退出登录</button>
@@ -469,6 +471,7 @@
   <script>
     const SUPABASE_URL = "https://jebpxetlkgragnelqimb.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_FE2eM6hOxPNOZDyXcS8BdQ_-D5ADbop";
+    const TURNSTILE_SITE_KEY = "0x4AAAAAAFjXeghRf3mb_bMZ";
     const isForumConfigured = SUPABASE_URL.startsWith("https://") && !SUPABASE_ANON_KEY.startsWith("YOUR_");
     const supabaseClient = isForumConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
     const shareButtons = document.querySelectorAll("#share-button, #join-share-button");
@@ -487,6 +490,7 @@
     const logoutActions = document.querySelector("#logout-actions");
     const logoutButton = document.querySelector("#logout-button");
     const registerButton = document.querySelector("#register-button");
+    const registrationCaptcha = document.querySelector("#registration-captcha");
     const authStatus = document.querySelector("#auth-status");
     const authDescription = document.querySelector("#auth-description");
     const authTitle = document.querySelector("#auth-title");
@@ -541,6 +545,54 @@
       authStatus.textContent = message;
     };
 
+    let turnstileWidgetId = null;
+    let turnstileLoadPromise = null;
+    let isRegistering = false;
+    const loadTurnstile = () => {
+      if (window.turnstile) return Promise.resolve(window.turnstile);
+      if (!turnstileLoadPromise) {
+        turnstileLoadPromise = new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+          script.async = true;
+          script.defer = true;
+          script.onload = () => window.turnstile ? resolve(window.turnstile) : reject(new Error("Turnstile failed to load."));
+          script.onerror = () => reject(new Error("Turnstile failed to load."));
+          document.head.append(script);
+        });
+      }
+      return turnstileLoadPromise;
+    };
+
+    const submitRegistration = async (captchaToken) => {
+      if (isRegistering) return;
+      isRegistering = true;
+      registerButton.disabled = true;
+      try {
+        const { data, error } = await supabaseClient.auth.signUp({
+          email: authEmail.value.trim(),
+          password: authPassword.value,
+          options: {
+            data: { full_name: authName.value.trim() },
+            captchaToken
+          }
+        });
+        if (error) {
+          setAuthStatus(currentLanguage === "zh" ? "注册失败，请检查邮箱或密码后重试。" : `Registration failed: ${error.message}`);
+        } else if (!data.session) {
+          setAuthStatus(currentLanguage === "zh" ? "注册成功，请检查邮箱完成验证。" : "Registration succeeded. Check your email to confirm your account.");
+        } else {
+          setAuthStatus(currentLanguage === "zh" ? "注册并登录成功。" : "Registered and signed in successfully.");
+        }
+      } catch (error) {
+        setAuthStatus(currentLanguage === "zh" ? "注册请求失败，请重试。" : `Registration request failed: ${error.message}`);
+      } finally {
+        isRegistering = false;
+        registerButton.disabled = false;
+        if (turnstileWidgetId !== null && window.turnstile) window.turnstile.reset(turnstileWidgetId);
+      }
+    };
+
     authForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const { error } = await supabaseClient.auth.signInWithPassword({ email: authEmail.value.trim(), password: authPassword.value });
@@ -554,17 +606,37 @@
         authName.focus();
         return;
       }
-      const { data, error } = await supabaseClient.auth.signUp({
-        email: authEmail.value.trim(),
-        password: authPassword.value,
-        options: { data: { full_name: authName.value.trim() } }
-      });
-      if (error) {
-        setAuthStatus(currentLanguage === "zh" ? "注册失败，请检查邮箱或密码。" : "Registration failed. Check your email and password.");
-      } else if (!data.session) {
-        setAuthStatus(currentLanguage === "zh" ? "注册成功，请检查邮箱完成验证。" : "Registration succeeded. Check your email to confirm your account.");
-      } else {
-        setAuthStatus(currentLanguage === "zh" ? "注册并登录成功。" : "Registered and signed in successfully.");
+      if (!isForumConfigured) {
+        setAuthStatus(currentLanguage === "zh" ? "注册服务尚未配置。" : "Registration is not configured.");
+        return;
+      }
+      if (!TURNSTILE_SITE_KEY || TURNSTILE_SITE_KEY.startsWith("YOUR_")) {
+        setAuthStatus(currentLanguage === "zh" ? "注册暂不可用：请先配置 CAPTCHA。" : "Registration is disabled until CAPTCHA is configured.");
+        return;
+      }
+
+      registrationCaptcha.hidden = false;
+      try {
+        const turnstile = await loadTurnstile();
+        if (turnstileWidgetId === null) {
+          turnstileWidgetId = turnstile.render(registrationCaptcha, {
+            sitekey: TURNSTILE_SITE_KEY,
+            callback: submitRegistration,
+            "error-callback": () => setAuthStatus(currentLanguage === "zh" ? "CAPTCHA 验证失败，请重试。" : "CAPTCHA verification failed. Please try again."),
+            "expired-callback": () => setAuthStatus(currentLanguage === "zh" ? "CAPTCHA 已过期，请重新验证。" : "CAPTCHA expired. Please verify again.")
+          });
+          setAuthStatus(currentLanguage === "zh" ? "请完成人机验证以注册。" : "Complete the CAPTCHA to register.");
+        } else {
+          const captchaToken = turnstile.getResponse(turnstileWidgetId);
+          if (captchaToken) {
+            await submitRegistration(captchaToken);
+          } else {
+            setAuthStatus(currentLanguage === "zh" ? "请先完成人机验证。" : "Complete the CAPTCHA first.");
+          }
+        }
+      } catch (error) {
+        if (!window.turnstile) turnstileLoadPromise = null;
+        setAuthStatus(currentLanguage === "zh" ? "无法加载 CAPTCHA，请检查网络后重试。" : `Could not load CAPTCHA: ${error.message}`);
       }
     });
 
