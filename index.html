@@ -79,6 +79,14 @@
       text-decoration: none;
     }
     .nav-links a:hover { color: white; }
+    .nav-user {
+      max-width: 180px;
+      overflow: hidden;
+      color: rgb(255 255 255 / 86%);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
     .nav-links .nav-join {
       padding: 10px 16px;
       border: 1px solid rgb(255 255 255 / 65%);
@@ -341,6 +349,7 @@
       .brand-name strong { font-size: 11px; }
       .brand-name span { font-size: 10px; }
       .nav-links { gap: 9px; }
+      .nav-user { max-width: 64px; font-size: 10px; }
       .hero-actions { align-items: stretch; flex-direction: column; max-width: 230px; }
       .footer-inner { align-items: flex-start; flex-direction: column; justify-content: center; padding: 17px 0; }
     }
@@ -362,6 +371,7 @@
         <a href="#fishing" data-i18n="navFishing">加拿大钓鱼指南</a>
         <a href="#contact" data-i18n="navContact">联系我们</a>
         <a class="nav-join" href="#join" data-i18n="navJoin">加入我们</a>
+        <span class="nav-user" id="nav-user" hidden></span>
         <button class="language-toggle" id="language-toggle" type="button" aria-label="切换语言">EN</button>
       </div>
     </nav>
@@ -552,6 +562,7 @@
     const authStatus = document.querySelector("#auth-status");
     const authDescription = document.querySelector("#auth-description");
     const authTitle = document.querySelector("#auth-title");
+    const navUser = document.querySelector("#nav-user");
     const contactForm = document.querySelector("#contact-form");
     let currentSession = null;
     const getUserDisplayName = () => currentSession?.user?.user_metadata?.full_name || currentSession?.user?.email?.split("@")[0] || "User";
@@ -605,6 +616,8 @@
 
     const updateAuthUI = () => {
       const isSignedIn = Boolean(currentSession);
+      navUser.textContent = isSignedIn ? getUserDisplayName() : "";
+      navUser.hidden = !isSignedIn;
       authTitle.hidden = isSignedIn;
       authDescription.hidden = isSignedIn;
       authForm.hidden = isSignedIn;
