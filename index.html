@@ -640,6 +640,7 @@
     const submitRegistration = async (captchaToken) => {
       if (isRegistering) return;
       isRegistering = true;
+      let registrationSucceeded = false;
       registerButton.disabled = true;
       try {
         const { data, error } = await supabaseClient.auth.signUp({
@@ -651,18 +652,29 @@
           }
         });
         if (error) {
-          setAuthStatus(currentLanguage === "zh" ? "注册失败，请检查邮箱或密码后重试。" : `Registration failed: ${error.message}`);
+          setAuthStatus(currentLanguage === "zh" ? `注册失败：${error.message}` : `Registration failed: ${error.message}`);
         } else if (!data.session) {
+          registrationSucceeded = true;
           setAuthStatus(currentLanguage === "zh" ? "注册成功，请检查邮箱完成验证。" : "Registration succeeded. Check your email to confirm your account.");
         } else {
+          registrationSucceeded = true;
           setAuthStatus(currentLanguage === "zh" ? "注册并登录成功。" : "Registered and signed in successfully.");
         }
       } catch (error) {
         setAuthStatus(currentLanguage === "zh" ? "注册请求失败，请重试。" : `Registration request failed: ${error.message}`);
       } finally {
         isRegistering = false;
-        registerButton.disabled = false;
-        if (turnstileWidgetId !== null && window.turnstile) window.turnstile.reset(turnstileWidgetId);
+        registerButton.disabled = registrationSucceeded;
+        if (turnstileWidgetId !== null && window.turnstile) {
+          if (registrationSucceeded) {
+            window.turnstile.remove(turnstileWidgetId);
+            turnstileWidgetId = null;
+            registrationCaptcha.replaceChildren();
+            registrationCaptcha.hidden = true;
+          } else {
+            window.turnstile.reset(turnstileWidgetId);
+          }
+        }
       }
     };
 
