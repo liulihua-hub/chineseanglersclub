@@ -1,5 +1,10 @@
 # chineseanglersclub
 See [BOT-PROTECTION.md](./BOT-PROTECTION.md) to enable CAPTCHA-verified registration.
+
+## Registration confirmation redirects
+
+Registration confirmation emails are directed to `https://chineseanglersclub.ca/` by the signup code. In Supabase, open **Authentication > URL Configuration** and set **Site URL** to `https://chineseanglersclub.ca`. Add `https://chineseanglersclub.ca/**` to **Redirect URLs** and save. Request a new confirmation email after changing this setting; existing links are one-time use and may have expired.
+
 ????????????
 
 ## ??????
