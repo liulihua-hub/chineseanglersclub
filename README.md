@@ -1,5 +1,6 @@
 # chineseanglersclub
 See [BOT-PROTECTION.md](./BOT-PROTECTION.md) to enable CAPTCHA-verified registration.
+See [CONTACT-EMAIL.md](./CONTACT-EMAIL.md) to deploy direct contact-form email delivery.
 
 ## Registration confirmation redirects
 

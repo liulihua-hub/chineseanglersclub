@@ -301,6 +301,7 @@
     .contact-form textarea { min-height: 145px; resize: vertical; }
     .contact-form input:focus-visible, .contact-form textarea:focus-visible { outline: 3px solid #a7bc9f; outline-offset: 2px; }
     .contact-form .button { justify-self: start; }
+    #contact-captcha { margin-top: 2px; }
     .contact-note { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
     .site-footer { background: #102f2b; color: rgb(255 255 255 / 73%); }
     .footer-inner {
@@ -509,19 +510,21 @@
           </div>
           <form class="contact-form" id="contact-form">
             <label><span data-i18n="contactName">姓名</span>
-              <input name="name" type="text" autocomplete="name" required>
+              <input name="name" type="text" maxlength="100" autocomplete="name" required>
             </label>
             <label><span data-i18n="contactEmail">你的邮箱</span>
-              <input name="email" type="email" autocomplete="email" required>
+              <input name="email" type="email" maxlength="254" autocomplete="email" required>
             </label>
             <label><span data-i18n="contactSubject">主题</span>
-              <input name="subject" type="text" required>
+              <input name="subject" type="text" maxlength="150" required>
             </label>
             <label><span data-i18n="contactMessage">留言</span>
-              <textarea name="message" required></textarea>
+              <textarea name="message" maxlength="5000" required></textarea>
             </label>
-            <button class="button button-primary" type="submit" data-i18n="contactSend">通过邮件发送 <span aria-hidden="true">→</span></button>
-            <p class="contact-note" data-i18n="contactNote">提交后会打开你设备上的邮件应用，由你确认并发送邮件。</p>
+            <div id="contact-captcha" hidden></div>
+            <button class="button button-primary" type="submit" data-i18n="contactSend">发送留言 <span aria-hidden="true">→</span></button>
+            <p class="contact-note" data-i18n="contactNote">完成人机验证后，留言将直接发送给俱乐部。</p>
+            <p class="contact-note" id="contact-status" role="status" aria-live="polite"></p>
           </form>
         </div>
       </div>
@@ -564,6 +567,8 @@
     const authTitle = document.querySelector("#auth-title");
     const navUser = document.querySelector("#nav-user");
     const contactForm = document.querySelector("#contact-form");
+    const contactCaptcha = document.querySelector("#contact-captcha");
+    const contactStatus = document.querySelector("#contact-status");
     let currentSession = null;
     const getUserDisplayName = () => currentSession?.user?.user_metadata?.full_name || currentSession?.user?.email?.split("@")[0] || "User";
     let currentLanguage = localStorage.getItem("chinese-anglers-language") || "zh";
@@ -575,7 +580,7 @@
       forumLabel: { zh: "钓友交流", en: "Anglers forum" }, forumTitle: { zh: "分享你的钓鱼故事。", en: "Share your fishing stories." }, forumCopy: { zh: "交流钓点、装备、经验和活动信息，认识更多喜欢钓鱼的朋友。", en: "Exchange fishing spots, gear, experience, and event information with fellow anglers." }, forumEmpty: { zh: "还没有帖子，成为第一个发帖的钓友吧。", en: "There are no posts yet. Be the first to start a conversation." }, newPost: { zh: "发布新帖子", en: "Create a new post" }, nickname: { zh: "昵称", en: "Name" }, nicknamePlaceholder: { zh: "请输入昵称", en: "Enter your name" }, postTitleLabel: { zh: "标题", en: "Title" }, postTitlePlaceholder: { zh: "帖子标题", en: "Post title" }, content: { zh: "内容", en: "Message" }, contentPlaceholder: { zh: "分享你的想法、问题或钓鱼经历", en: "Share your thoughts, questions, or fishing experience" }, publish: { zh: "发布帖子 <span aria-hidden='true'>→</span>", en: "Publish post <span aria-hidden='true'>→</span>" },
       replyContentPlaceholder: { zh: "写下你的回复……", en: "Write a reply…" }, replyButton: { zh: "回复", en: "Reply" }, imageLabel: { zh: "图片（可选）", en: "Image (optional)" }, imageHelp: { zh: "支持 JPG、PNG、GIF、WebP，最大 5 MB。", en: "JPG, PNG, GIF, or WebP. Maximum 5 MB." }, replyImageLabel: { zh: "附加图片", en: "Attach image" }, authTitle: { zh: "登录后参与交流", en: "Sign in to join the conversation" }, authDescription: { zh: "注册或登录后，您就可以发布帖子和回复。", en: "Register or sign in to publish posts and replies." }, namePlaceholder: { zh: "注册姓名（登录时无需填写）", en: "Name for registration (not needed to sign in)" }, emailPlaceholder: { zh: "邮箱地址", en: "Email address" }, passwordPlaceholder: { zh: "密码（至少6位）", en: "Password (at least 6 characters)" }, login: { zh: "登录", en: "Sign in" }, register: { zh: "注册", en: "Register" }, logout: { zh: "退出登录", en: "Sign out" },
       fishingLabel: { zh: "从这里开始", en: "A good place to start" }, fishingTitle: { zh: "每个省和地区都有自己的水域与规定。", en: "Every province and territory has its own waters and rules." }, fishingCopy: { zh: "出发前，请查看计划垂钓的省或地区对钓鱼执照、开放季节、渔获限额和当地公告的要求。", en: "Before you head out, check fishing licence requirements, open seasons, catch limits, and local advisories for the province or territory where you plan to fish." }, fishingLink: { zh: "了解安大略省钓鱼信息 <span aria-hidden='true'>↗</span>", en: "Explore fishing in Ontario <span aria-hidden='true'>↗</span>" }, joinLabel: { zh: "一起挥出下一竿", en: "The next cast is better together" }, joinTitle: { zh: "来认识志同道合的朋友。", en: "Come find your people." }, joinCopy: { zh: "认识俱乐部里的朋友吗？联系他们，了解如何参加当地活动。我们随时欢迎新朋友。", en: "Know someone in the club? Ask about joining a local outing. New friends are always welcome." }, sharePage: { zh: "分享此页面 <span aria-hidden='true'>↗</span>", en: "Share this page <span aria-hidden='true'>↗</span>" },
-      contactLabel: { zh: "保持联系", en: "Get in touch" }, contactTitle: { zh: "有问题或想打个招呼？", en: "Questions or just want to say hello?" }, contactCopy: { zh: "欢迎联系我们，聊聊俱乐部、钓鱼活动或任何你想了解的事情。", en: "Get in touch about the club, fishing outings, or anything else you would like to know." }, contactName: { zh: "姓名", en: "Your name" }, contactEmail: { zh: "你的邮箱", en: "Your email" }, contactSubject: { zh: "主题", en: "Subject" }, contactMessage: { zh: "留言", en: "Message" }, contactSend: { zh: "通过邮件发送 <span aria-hidden='true'>→</span>", en: "Send by email <span aria-hidden='true'>→</span>" }, contactNote: { zh: "提交后会打开你设备上的邮件应用，由你确认并发送邮件。", en: "This opens your email app so you can review and send your message." },
+      contactLabel: { zh: "保持联系", en: "Get in touch" }, contactTitle: { zh: "有问题或想打个招呼？", en: "Questions or just want to say hello?" }, contactCopy: { zh: "欢迎联系我们，聊聊俱乐部、钓鱼活动或任何你想了解的事情。", en: "Get in touch about the club, fishing outings, or anything else you would like to know." }, contactName: { zh: "姓名", en: "Your name" }, contactEmail: { zh: "你的邮箱", en: "Your email" }, contactSubject: { zh: "主题", en: "Subject" }, contactMessage: { zh: "留言", en: "Message" }, contactSend: { zh: "发送留言 <span aria-hidden='true'>→</span>", en: "Send message <span aria-hidden='true'>→</span>" }, contactNote: { zh: "完成人机验证后，留言将直接发送给俱乐部。", en: "Complete the security check and your message will be sent directly to the club." }, contactCaptchaPrompt: { zh: "请完成人机验证后发送留言。", en: "Complete the security check to send your message." }, contactCaptchaFailed: { zh: "人机验证失败或已过期，请重试。", en: "The security check failed or expired. Please try again." }, contactCaptchaUnavailable: { zh: "无法加载人机验证，请稍后重试。", en: "Could not load the security check. Please try again later." }, contactSending: { zh: "正在发送留言……", en: "Sending your message…" }, contactSent: { zh: "留言已发送，谢谢！", en: "Your message has been sent. Thank you!" }, contactSendFailed: { zh: "留言发送失败，请稍后重试。", en: "Could not send your message. Please try again later." }, contactNotConfigured: { zh: "留言服务尚未配置，请稍后重试。", en: "The contact service is not configured yet. Please try again later." },
       footerName: { zh: "加拿大华人钓鱼俱乐部 <span aria-hidden='true'>·</span> Chinese Anglers Club Canada", en: "Chinese Anglers Club Canada <span aria-hidden='true'>·</span> 加拿大华人钓鱼俱乐部" }, footerCopy: { zh: "因钓鱼相聚，共享美好时光。", en: "Made for good company and open water." }
     };
 
@@ -602,16 +607,85 @@
     });
     applyLanguage(currentLanguage);
 
-    contactForm.addEventListener("submit", (event) => {
+    let contactCaptchaWidgetId = null;
+    let isPreparingContactCaptcha = false;
+    let isSendingContactMessage = false;
+    const sendContactMessage = async (captchaToken) => {
+      if (isSendingContactMessage) return;
+      isSendingContactMessage = true;
+      const submitButton = contactForm.querySelector("button[type=submit]");
+      submitButton.disabled = true;
+      contactStatus.textContent = translations.contactSending[currentLanguage];
+      try {
+        if (!isForumConfigured || !supabaseClient) throw new Error("Contact service is not configured.");
+        const formData = new FormData(contactForm);
+        const { error } = await supabaseClient.functions.invoke("contact-email", {
+          body: {
+            name: formData.get("name").trim(),
+            email: formData.get("email").trim(),
+            subject: formData.get("subject").trim(),
+            message: formData.get("message").trim(),
+            captchaToken
+          }
+        });
+        if (error) throw error;
+        contactForm.reset();
+        contactStatus.textContent = translations.contactSent[currentLanguage];
+      } catch (error) {
+        console.error("Contact message submission failed:", error);
+        contactStatus.textContent = isForumConfigured
+          ? translations.contactSendFailed[currentLanguage]
+          : translations.contactNotConfigured[currentLanguage];
+      } finally {
+        isSendingContactMessage = false;
+        submitButton.disabled = false;
+        if (contactCaptchaWidgetId !== null && window.turnstile) {
+          window.turnstile.reset(contactCaptchaWidgetId);
+        }
+      }
+    };
+
+    contactForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const formData = new FormData(contactForm);
-      const body = [
-        `${currentLanguage === "zh" ? "姓名" : "Name"}: ${formData.get("name").trim()}`,
-        `${currentLanguage === "zh" ? "邮箱" : "Email"}: ${formData.get("email").trim()}`,
-        "",
-        formData.get("message").trim()
-      ].join("\n");
-      window.location.href = `mailto:jian_ou@hotmail.com?subject=${encodeURIComponent(formData.get("subject").trim())}&body=${encodeURIComponent(body)}`;
+      if (isSendingContactMessage || isPreparingContactCaptcha) return;
+      if (!isForumConfigured || !supabaseClient || !TURNSTILE_SITE_KEY || TURNSTILE_SITE_KEY.startsWith("YOUR_")) {
+        contactStatus.textContent = translations.contactNotConfigured[currentLanguage];
+        return;
+      }
+
+      isPreparingContactCaptcha = true;
+      contactCaptcha.hidden = false;
+      try {
+        const turnstile = await loadTurnstile();
+        if (contactCaptchaWidgetId === null) {
+          contactCaptchaWidgetId = turnstile.render(contactCaptcha, {
+            sitekey: TURNSTILE_SITE_KEY,
+            action: "contact",
+            callback: sendContactMessage,
+            "error-callback": () => {
+              contactStatus.textContent = translations.contactCaptchaFailed[currentLanguage];
+            },
+            "expired-callback": () => {
+              contactStatus.textContent = translations.contactCaptchaFailed[currentLanguage];
+            }
+          });
+          contactStatus.textContent = translations.contactCaptchaPrompt[currentLanguage];
+        } else {
+          const captchaToken = turnstile.getResponse(contactCaptchaWidgetId);
+          if (captchaToken) {
+            await sendContactMessage(captchaToken);
+          } else {
+            contactStatus.textContent = translations.contactCaptchaPrompt[currentLanguage];
+          }
+        }
+      } catch (error) {
+        if (!window.turnstile) turnstileLoadPromise = null;
+        console.error("Could not load contact CAPTCHA:", error);
+        contactStatus.textContent = translations.contactCaptchaUnavailable[currentLanguage];
+        contactCaptcha.hidden = true;
+      } finally {
+        isPreparingContactCaptcha = false;
+      }
     });
 
     const updateAuthUI = () => {
