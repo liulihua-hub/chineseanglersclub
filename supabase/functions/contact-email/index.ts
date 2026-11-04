@@ -90,11 +90,29 @@ Deno.serve(async (request: Request) => {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ secret: turnstileSecret, response: captchaToken })
     });
+    const captchaBody = await captchaResponse.text();
+    let captchaPayload: unknown;
+    try {
+      captchaPayload = JSON.parse(captchaBody);
+    } catch {
+      captchaPayload = null;
+    }
     if (!captchaResponse.ok) {
-      console.error("Turnstile verification service returned an unsuccessful response.");
+      const errorCodes = captchaPayload && typeof captchaPayload === "object" && "error-codes" in captchaPayload &&
+        Array.isArray(captchaPayload["error-codes"])
+        ? captchaPayload["error-codes"].filter((code): code is string => typeof code === "string")
+        : [];
+      console.error(
+        `Turnstile verification returned HTTP ${captchaResponse.status}.`,
+        errorCodes.length ? `Cloudflare error codes: ${errorCodes.join(", ")}` : "Cloudflare returned no error codes."
+      );
       return jsonResponse(request, 502, { error: "Could not verify the security check." }, allowedOrigin);
     }
-    captchaResult = await captchaResponse.json();
+    captchaResult = captchaPayload as { success?: boolean; hostname?: string; action?: string } | null;
+    if (!captchaResult || typeof captchaResult !== "object") {
+      console.error("Turnstile verification returned an invalid JSON response.");
+      return jsonResponse(request, 502, { error: "Could not verify the security check." }, allowedOrigin);
+    }
   } catch (error) {
     console.error("Turnstile verification request failed:", error);
     return jsonResponse(request, 502, { error: "Could not verify the security check." }, allowedOrigin);
