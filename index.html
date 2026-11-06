@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#143d35">
-  <meta name="description" content="A friendly Canadian fishing community for Chinese immigrants, families, and anglers of all experience levels.">
-  <title>Chinese Anglers Club Canada | 加拿大华人钓鱼俱乐部</title>
+  <meta name="description" content="加拿大华人钓鱼俱乐部，为华人移民、家庭和不同经验水平的钓鱼爱好者提供友好的交流社区。">
+  <title>加拿大华人钓鱼俱乐部 | Chinese Anglers Club Canada</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -373,7 +373,7 @@
         <a href="#contact" data-i18n="navContact">联系我们</a>
         <a class="nav-join" href="#join" data-i18n="navJoin">加入我们</a>
         <span class="nav-user" id="nav-user" hidden></span>
-        <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch to Chinese">中文</button>
+        <button class="language-toggle" id="language-toggle" type="button" aria-label="切换为英文">EN</button>
       </div>
     </nav>
   </header>
@@ -571,7 +571,7 @@
     const contactStatus = document.querySelector("#contact-status");
     let currentSession = null;
     const getUserDisplayName = () => currentSession?.user?.user_metadata?.full_name || currentSession?.user?.email?.split("@")[0] || "User";
-    let currentLanguage = localStorage.getItem("chinese-anglers-language") || "en";
+    let currentLanguage = localStorage.getItem("chinese-anglers-language") || "zh";
     const translations = {
       navAbout: { zh: "我们的社区", en: "Our community" }, navForum: { zh: "钓友论坛", en: "Anglers forum" }, navFishing: { zh: "加拿大钓鱼指南", en: "Fishing in Canada" }, navContact: { zh: "联系我们", en: "Contact us" }, navJoin: { zh: "加入我们", en: "Join us" },
       heroEyebrow: { zh: "加拿大华人钓鱼社区", en: "A Chinese fishing community in Canada" }, heroTitle: { zh: "美好的一天<br>从水边开始。", en: "Good days begin<br>by the water." }, heroSubheading: { zh: "因热爱垂钓，在加拿大相聚。", en: "Together in Canada through our love of fishing." }, heroCopy: { zh: "这里是华人移民、家庭和钓鱼爱好者的友好社区。无论您身在加拿大何处，都可以与志同道合的朋友分享水边的宁静与快乐。", en: "A friendly place for Chinese immigrants, families, and fishing lovers to share the quiet joy of a day on the water, wherever home is in Canada." }, findFriends: { zh: "寻找钓友 <span aria-hidden='true'>→</span>", en: "Find your fishing people <span aria-hidden='true'>→</span>" }, shareClub: { zh: "分享俱乐部 <span aria-hidden='true'>↗</span>", en: "Share the club <span aria-hidden='true'>↗</span>" }, heroNote: { zh: "欢迎新手、老手以及家人朋友。", en: "Beginners, experienced anglers, families, and friends are all welcome." },
